@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Politécnico de Antioquia - Sistema de Solicitudes</title>
+
+  <!-- Estilos -->
+  <style>
+    :root{
+      --primary:#0a1f44;
+      --secondary:#1e90ff;
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --info:#2563eb;
+      --danger:#dc2626;
+    }
+    *{box-sizing:border-box; margin:0; padding:0; font-family:Segoe UI, Tahoma, sans-serif;}
+    body{background:var(--bg); color:#222;}
+    header{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff; padding:18px; text-align:center;
+    }
+    .container{max-width:1100px; margin:20px auto; padding:0 15px;}
+    .grid{display:grid; grid-template-columns:1fr 2fr; gap:20px;}
+    .card{
+      background:var(--card); padding:18px; border-radius:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+    }
+    h2,h3{color:var(--primary); margin-bottom:10px;}
+    form{display:flex; flex-direction:column; gap:10px;}
+    input, select, textarea{
+      padding:10px; border-radius:8px; border:1px solid #ccc;
+    }
+    button{
+      padding:10px; border:none; border-radius:8px; cursor:pointer;
+      background:var(--secondary); color:#fff; font-weight:bold;
+    }
+    button:hover{opacity:.9;}
+
+    /* Tabla */
+    table{width:100%; border-collapse:collapse; margin-top:10px;}
+    th,td{padding:10px; border:1px solid #ddd; text-align:center;}
+    th{background:var(--primary); color:#fff;}
+
+    /* Badges */
+    .badge{padding:4px 8px; border-radius:999px; font-size:12px; color:#fff;}
+    .Pendiente{background:var(--warn);}
+    .En_proceso{background:var(--info);}
+    .Resuelta{background:var(--ok);}
+
+    .Alta{background:var(--danger);}
+    .Media{background:var(--info);}
+    .Baja{background:#6b7280;}
+
+    .acciones button{margin:2px; padding:6px 8px; font-size:12px;}
+    .btn-del{background:var(--danger);}
+    .btn-state{background:var(--secondary);}
+    .btn-edit{background:#6b7280;}
+
+    .topbar{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      justify-content:space-between; margin-bottom:10px;
+    }
+    .filters{display:flex; gap:8px; flex-wrap:wrap;}
+    .filters input, .filters select{padding:8px;}
+
+    .kpis{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+    .kpi{
+      background:#eef2ff; border-radius:10px; padding:10px 14px;
+      font-size:13px;
+    }
+    .kpi b{display:block; font-size:18px; color:var(--primary);}
+
+    footer{margin-top:20px; text-align:center; color:#555;}
+    @media (max-width: 800px){
+      .grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Politécnico de Antioquia</h1>
+  <p>Sistema de Solicitudes (Mesa de Ayuda)</p>
+</header>
+
+<div class="container">
+
+  <div class="grid">
+
+    <!-- FORMULARIO -->
+    <div class="card">
+      <h3>Nueva Solicitud</h3>
+      <form id="formSolicitud">
+        <input type="hidden" id="solId">
+
+        <input id="nombre" type="text" placeholder="Nombre completo" required>
+        <input id="correo" type="email" placeholder="Correo" required>
+        <input id="asunto" type="text" placeholder="Asunto" required>
+
+        <select id="tipo">
+          <option>Académica</option>
+          <option>Administrativa</option>
+          <option>Técnica</option>
+        </select>
+
+        <select id="prioridad">
+          <option>Baja</option>
+          <option>Media</option>
+          <option>Alta</option>
+        </select>
+
+        <textarea id="descripcion" rows="4" placeholder="Descripción" required></textarea>
+
+        <button type="submit">Guardar Solicitud</button>
+      </form>
+
+      <div class="kpis">
+        <div class="kpi"><span>Total</span><b id="kpiTotal">0</b></div>
+        <div class="kpi"><span>Pendientes</span><b id="kpiPend">0</b></div>
+        <div class="kpi"><span>En proceso</span><b id="kpiProc">0</b></div>
+        <div class="kpi"><span>Resueltas</span><b id="kpiRes">0</b></div>
+      </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="card">
+      <div class="topbar">
+        <h3>Solicitudes</h3>
+        <div class="filters">
+          <input id="buscar" placeholder="Buscar..." onkeyup="buscar()">
+          <select id="fEstado" onchange="filtrar()">
+            <option value="todas">Estado: Todas</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="En_proceso">En proceso</option>
+            <option value="Resuelta">Resuelta</option>
+          </select>
+          <select id="fPrioridad" onchange="filtrar()">
+            <option value="todas">Prioridad: Todas</option>
+            <option value="Alta">Alta</option>
+            <option value="Media">Media</option>
+            <option value="Baja">Baja</option>
+          </select>
+          <button onclick="exportarCSV()">Exportar CSV</button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Asunto</th>
+            <th>Tipo</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 Politécnico de Antioquia</p>
+  </footer>
+</div>
+
+<!-- Script -->
+<script>
+let solicitudes = JSON.parse(localStorage.getItem("solicitudes")) || [];
+
+// Helpers
+const hoy = () => new Date().toLocaleString();
+
+// Render
+function render(lista = solicitudes){
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  lista.forEach((s,i)=>{
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.nombre}</td>
+        <td>${s.asunto}</td>
+        <td>${s.tipo}</td>
+        <td><span class="badge ${s.prioridad}">${s.prioridad}</span></td>
+        <td><span class="badge ${s.estado}">${s.estado.replace("_"," ")}</span></td>
+        <td>${s.fecha}</td>
+        <td class="acciones">
+          <button class="btn-state" onclick="cambiarEstado(${i})">Estado</button>
+          <button class="btn-edit" onclick="editar(${i})">Editar</button>
+          <button class="btn-del" onclick="eliminar(${i})">Eliminar</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  kpis();
+}
+
+// KPIs
+function kpis(){
+  const t = solicitudes.length;
+  const p = solicitudes.filter(s=>s.estado==="Pendiente").length;
+  const e = solicitudes.filter(s=>s.estado==="En_proceso").length;
+  const r = solicitudes.filter(s=>s.estado==="Resuelta").length;
+
+  document.getElementById("kpiTotal").innerText = t;
+  document.getElementById("kpiPend").innerText = p;
+  document.getElementById("kpiProc").innerText = e;
+  document.getElementById("kpiRes").innerText = r;
+}
+
+// Guardar
+function save(){
+  localStorage.setItem("solicitudes", JSON.stringify(solicitudes));
+}
+
+// Crear/Actualizar
+document.getElementById("formSolicitud").addEventListener("submit", e=>{
+  e.preventDefault();
+
+  const id = document.getElementById("solId").value;
+
+  const data = {
+    nombre: nombre.value,
+    correo: correo.value,
+    asunto: asunto.value,
+    tipo: tipo.value,
+    prioridad: prioridad.value,
+    descripcion: descripcion.value,
+    estado: "Pendiente",
+    fecha: hoy()
+  };
+
+  if(id===""){
+    solicitudes.push(data);
+  } else {
+    data.estado = solicitudes[id].estado;
+    data.fecha = solicitudes[id].fecha;
+    solicitudes[id] = data;
+  }
+
+  save();
+  render();
+  e.target.reset();
+  solId.value="";
+});
+
+// Acciones
+function cambiarEstado(i){
+  const estados = ["Pendiente","En_proceso","Resuelta"];
+  let idx = estados.indexOf(solicitudes[i].estado);
+  solicitudes[i].estado = estados[(idx+1)%3];
+  save(); render();
+}
+
+function editar(i){
+  const s = solicitudes[i];
+  solId.value = i;
+  nombre.value = s.nombre;
+  correo.value = s.correo;
+  asunto.value = s.asunto;
+  tipo.value = s.tipo;
+  prioridad.value = s.prioridad;
+  descripcion.value = s.descripcion;
+}
+
+function eliminar(i){
+  if(confirm("¿Eliminar solicitud?")){
+    solicitudes.splice(i,1);
+    save(); render();
+  }
+}
+
+// Filtros
+function buscar(){
+  const txt = document.getElementById("buscar").value.toLowerCase();
+  const lista = solicitudes.filter(s =>
+    s.nombre.toLowerCase().includes(txt) ||
+    s.asunto.toLowerCase().includes(txt)
+  );
+  render(lista);
+}
+
+function filtrar(){
+  let estado = fEstado.value;
+  let prioridad = fPrioridad.value;
+
+  let lista = solicitudes.filter(s =>
+    (estado==="todas" || s.estado===estado) &&
+    (prioridad==="todas" || s.prioridad===prioridad)
+  );
+
+  render(lista);
+}
+
+// Exportar CSV
+function exportarCSV(){
+  let csv = "Nombre,Correo,Asunto,Tipo,Prioridad,Estado,Fecha\n";
+  solicitudes.forEach(s=>{
+    csv += `${s.nombre},${s.correo},${s.asunto},${s.tipo},${s.prioridad},${s.estado},${s.fecha}\n`;
+  });
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "solicitudes.csv";
+  a.click();
+}
+
+// Init
+render();
+</script>
+
+</body>
+</html>

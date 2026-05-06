@@ -1,0 +1,45 @@
+<section id="panel-usuarios">
+  <h2>Panel de Gestión de Usuarios</h2>
+
+  <div class="panel-grid">
+
+    <!-- Formulario -->
+    <div class="card">
+      <h3>Registrar / Editar Usuario</h3>
+      <form id="formUsuario">
+        <input type="hidden" id="userId">
+
+        <input type="text" id="nombre" placeholder="Nombre completo" required>
+        <input type="email" id="correo" placeholder="Correo electrónico" required>
+
+        <select id="rol">
+          <option value="Estudiante">Estudiante</option>
+          <option value="Docente">Docente</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+
+        <button class="btn" type="submit">Guardar Usuario</button>
+      </form>
+    </div>
+
+    <!-- Lista -->
+    <div class="card">
+      <h3>Usuarios Registrados</h3>
+
+      <input type="text" id="busqueda" placeholder="Buscar usuario..." onkeyup="buscarUsuario()">
+
+      <table id="tablaUsuarios">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
+</section>

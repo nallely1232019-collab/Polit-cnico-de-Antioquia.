@@ -1,0 +1,63 @@
+<section id="acerca">
+  <h2>Acerca de la Página</h2>
+
+  <div class="acerca-container">
+
+    <div class="acerca-card">
+      <h3>Finalidad</h3>
+      <p>
+        Esta plataforma web del Politécnico de Antioquia tiene como finalidad
+        centralizar y digitalizar los procesos académicos y administrativos,
+        permitiendo a estudiantes, docentes y personal administrativo acceder
+        a la información de manera rápida, segura y eficiente.
+      </p>
+    </div>
+
+    <div class="acerca-card">
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        La página sirve como un sistema integral que facilita la gestión de
+        usuarios, solicitudes, directorio de personal, recursos humanos digitales
+        y visualización de datos. Su propósito es mejorar la comunicación y optimizar
+        los procesos institucionales mediante herramientas tecnológicas modernas.
+      </p>
+    </div>
+
+    <div class="acerca-card">
+      <h3>Objetivo General</h3>
+      <p>
+        Desarrollar una plataforma web interactiva que integre los principales
+        servicios académicos y administrativos del Politécnico de Antioquia,
+        contribuyendo a la transformación digital de la institución.
+      </p>
+    </div>
+
+    <div class="acerca-card">
+      <h3>Objetivos Específicos</h3>
+      <ul>
+        <li>Facilitar la gestión de información académica y administrativa.</li>
+        <li>Optimizar los procesos mediante herramientas digitales.</li>
+        <li>Mejorar la experiencia del usuario en la navegación web.</li>
+        <li>Promover el uso de tecnologías modernas en la educación.</li>
+      </ul>
+    </div>
+
+    <div class="acerca-card">
+      <h3>Misión</h3>
+      <p>
+        Brindar una plataforma digital innovadora que apoye la gestión académica
+        y administrativa, fomentando el acceso a la información y el desarrollo
+        tecnológico en la comunidad educativa.
+      </p>
+    </div>
+
+    <div class="acerca-card">
+      <h3>Visión</h3>
+      <p>
+        Ser una plataforma digital referente en educación, reconocida por su
+        eficiencia, innovación y aporte a la transformación digital del sector educativo.
+      </p>
+    </div>
+
+  </div>
+</section>

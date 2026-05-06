@@ -1,0 +1,73 @@
+<script>
+let datos = {
+  todos: {
+    programas: [120, 90, 70],
+    crecimiento: [50, 80, 120, 150],
+    satisfaccion: [85, 90, 88]
+  },
+  sistemas: {
+    programas: [120],
+    crecimiento: [30, 50, 70, 120],
+    satisfaccion: [90]
+  },
+  administracion: {
+    programas: [90],
+    crecimiento: [20, 40, 60, 90],
+    satisfaccion: [85]
+  },
+  diseno: {
+    programas: [70],
+    crecimiento: [15, 30, 50, 70],
+    satisfaccion: [88]
+  }
+};
+
+let grafico1, grafico2, grafico3;
+
+function crearGraficos(tipo = "todos") {
+  let d = datos[tipo];
+
+  if (grafico1) grafico1.destroy();
+  if (grafico2) grafico2.destroy();
+  if (grafico3) grafico3.destroy();
+
+  grafico1 = new Chart(document.getElementById("graficoProgramas"), {
+    type: 'bar',
+    data: {
+      labels: ["Sistemas", "Administración", "Diseño"],
+      datasets: [{
+        label: "Estudiantes",
+        data: d.programas,
+      }]
+    }
+  });
+
+  grafico2 = new Chart(document.getElementById("graficoCrecimiento"), {
+    type: 'line',
+    data: {
+      labels: ["2022", "2023", "2024", "2025"],
+      datasets: [{
+        label: "Matrículas",
+        data: d.crecimiento,
+      }]
+    }
+  });
+
+  grafico3 = new Chart(document.getElementById("graficoSatisfaccion"), {
+    type: 'doughnut',
+    data: {
+      labels: ["Satisfacción"],
+      datasets: [{
+        data: d.satisfaccion,
+      }]
+    }
+  });
+}
+
+function actualizarGraficos() {
+  let valor = document.getElementById("filtroPrograma").value;
+  crearGraficos(valor);
+}
+
+crearGraficos();
+</script>

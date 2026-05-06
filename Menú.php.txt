@@ -1,0 +1,32 @@
+<header class="menu">
+  <div class="logo">Politécnico de Antioquia</div>
+
+  <nav id="nav">
+    <ul>
+      <li><a href="#inicio">Inicio</a></li>
+
+      <li class="dropdown">
+        <a href="#">Académico ▾</a>
+        <ul class="submenu">
+          <li><a href="#programas">Programas</a></li>
+          <li><a href="#horarios">Horarios</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <a href="#">Gestión ▾</a>
+        <ul class="submenu">
+          <li><a href="#usuarios">Usuarios</a></li>
+          <li><a href="#solicitudes">Solicitudes</a></li>
+          <li><a href="#directorio">Directorio</a></li>
+          <li><a href="#rrhh">RRHH</a></li>
+        </ul>
+      </li>
+
+      <li><a href="#graficos">Estadísticas</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>

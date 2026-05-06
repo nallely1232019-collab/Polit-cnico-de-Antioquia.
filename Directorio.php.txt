@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Politécnico de Antioquia - Directorio de Personal</title>
+
+  <style>
+    :root{
+      --primary:#0a1f44;
+      --secondary:#1e90ff;
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --danger:#dc2626;
+      --ok:#16a34a;
+    }
+    *{box-sizing:border-box; margin:0; padding:0; font-family:Segoe UI, Tahoma, sans-serif;}
+    body{background:var(--bg); color:#222;}
+    header{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff; padding:18px; text-align:center;
+    }
+    .container{max-width:1100px; margin:20px auto; padding:0 15px;}
+    .grid{display:grid; grid-template-columns:1fr 2fr; gap:20px;}
+    .card{
+      background:var(--card); padding:16px; border-radius:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+    }
+    h2,h3{color:var(--primary); margin-bottom:10px;}
+    form{display:flex; flex-direction:column; gap:10px;}
+    input, select{
+      padding:10px; border-radius:8px; border:1px solid #ccc;
+    }
+    button{
+      padding:10px; border:none; border-radius:8px; cursor:pointer;
+      background:var(--secondary); color:#fff; font-weight:bold;
+    }
+    button:hover{opacity:.9;}
+    .btn-alt{background:#6b7280;}
+    .btn-del{background:var(--danger);}
+
+    /* Topbar */
+    .topbar{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      justify-content:space-between; margin-bottom:10px;
+    }
+    .filters{display:flex; gap:8px; flex-wrap:wrap;}
+    .filters input, .filters select{padding:8px;}
+
+    /* Cards */
+    .cards{
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+      gap:12px; margin-top:10px;
+    }
+    .person{
+      background:#fff; border-radius:12px; padding:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.06);
+      display:flex; gap:10px; align-items:center;
+    }
+    .avatar{
+      width:56px; height:56px; border-radius:50%; object-fit:cover;
+      background:#e5e7eb;
+    }
+    .person h4{margin-bottom:2px;}
+    .muted{color:var(--muted); font-size:12px;}
+    .pill{
+      display:inline-block; margin-top:4px; font-size:11px;
+      padding:3px 8px; border-radius:999px; background:#eef2ff;
+    }
+    .actions{margin-top:6px;}
+    .actions button{margin-right:4px; padding:6px 8px; font-size:12px;}
+
+    /* Table */
+    table{width:100%; border-collapse:collapse; margin-top:10px;}
+    th,td{padding:10px; border:1px solid #ddd; text-align:center;}
+    th{background:var(--primary); color:#fff; cursor:pointer;}
+    .view-toggle{display:flex; gap:8px;}
+    .kpis{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+    .kpi{
+      background:#eef2ff; border-radius:10px; padding:10px 14px;
+      font-size:13px;
+    }
+    .kpi b{display:block; font-size:18px; color:var(--primary);}
+    footer{margin-top:20px; text-align:center; color:#555;}
+    @media (max-width: 800px){
+      .grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Politécnico de Antioquia</h1>
+  <p>Directorio de Personal</p>
+</header>
+
+<div class="container">
+
+  <div class="grid">
+
+    <!-- FORM -->
+    <div class="card">
+      <h3>Registrar / Editar</h3>
+      <form id="form">
+        <input type="hidden" id="pid">
+
+        <input id="nombre" type="text" placeholder="Nombre completo" required>
+        <input id="correo" type="email" placeholder="Correo" required>
+        <input id="telefono" type="text" placeholder="Teléfono">
+
+        <select id="departamento">
+          <option>Académico</option>
+          <option>Administrativo</option>
+          <option>Tecnología</option>
+          <option>Bienestar</option>
+        </select>
+
+        <select id="rol">
+          <option>Docente</option>
+          <option>Administrativo</option>
+          <option>Coordinador</option>
+          <option>Soporte</option>
+        </select>
+
+        <input id="foto" type="file" accept="image/*">
+
+        <button type="submit">Guardar</button>
+      </form>
+
+      <div class="kpis">
+        <div class="kpi"><span>Total</span><b id="kTotal">0</b></div>
+        <div class="kpi"><span>Docentes</span><b id="kDoc">0</b></div>
+        <div class="kpi"><span>Admins</span><b id="kAdm">0</b></div>
+      </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="card">
+      <div class="topbar">
+        <h3>Personal</h3>
+        <div class="filters">
+          <input id="q" placeholder="Buscar..." onkeyup="buscar()">
+          <select id="fDep" onchange="filtrar()">
+            <option value="todas">Depto: Todos</option>
+            <option>Académico</option>
+            <option>Administrativo</option>
+            <option>Tecnología</option>
+            <option>Bienestar</option>
+          </select>
+          <select id="fRol" onchange="filtrar()">
+            <option value="todas">Rol: Todos</option>
+            <option>Docente</option>
+            <option>Administrativo</option>
+            <option>Coordinador</option>
+            <option>Soporte</option>
+          </select>
+          <button class="btn-alt" onclick="exportarCSV()">Exportar CSV</button>
+          <div class="view-toggle">
+            <button class="btn-alt" onclick="setVista('cards')">Tarjetas</button>
+            <button class="btn-alt" onclick="setVista('tabla')">Tabla</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div id="cards" class="cards"></div>
+
+      <!-- Table -->
+      <table id="tabla" style="display:none;">
+        <thead>
+          <tr>
+            <th onclick="ordenar('nombre')">Nombre</th>
+            <th onclick="ordenar('correo')">Correo</th>
+            <th onclick="ordenar('departamento')">Departamento</th>
+            <th onclick="ordenar('rol')">Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 Politécnico de Antioquia</p>
+  </footer>
+</div>
+
+<script>
+let personal = JSON.parse(localStorage.getItem("personal")) || [];
+let vista = "cards";
+let sortKey = "nombre";
+let sortAsc = true;
+
+// Utils
+function save(){ localStorage.setItem("personal", JSON.stringify(personal)); }
+function kpis(){
+  kTotal.innerText = personal.length;
+  kDoc.innerText = personal.filter(p=>p.rol==="Docente").length;
+  kAdm.innerText = personal.filter(p=>p.rol==="Administrativo").length;
+}
+
+// Render
+function render(lista = personal){
+  // ordenar
+  lista = [...lista].sort((a,b)=>{
+    let A = (a[sortKey]||"").toLowerCase();
+    let B = (b[sortKey]||"").toLowerCase();
+    if(A<B) return sortAsc?-1:1;
+    if(A>B) return sortAsc?1:-1;
+    return 0;
+  });
+
+  // cards
+  const cards = document.getElementById("cards");
+  cards.innerHTML = "";
+  lista.forEach((p,i)=>{
+    cards.innerHTML += `
+      <div class="person">
+        <img class="avatar" src="${p.foto || ''}" alt="">
+        <div>
+          <h4>${p.nombre}</h4>
+          <div class="muted">${p.correo}</div>
+          <div class="pill">${p.departamento} • ${p.rol}</div>
+          <div class="actions">
+            <button onclick="editar(${i})">Editar</button>
+            <button class="btn-del" onclick="eliminar(${i})">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // table
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  lista.forEach((p,i)=>{
+    tbody.innerHTML += `
+      <tr>
+        <td>${p.nombre}</td>
+        <td>${p.correo}</td>
+        <td>${p.departamento}</td>
+        <td>${p.rol}</td>
+        <td>
+          <button onclick="editar(${i})">Editar</button>
+          <button class="btn-del" onclick="eliminar(${i})">Eliminar</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  kpis();
+}
+
+// CRUD
+document.getElementById("form").addEventListener("submit", async e=>{
+  e.preventDefault();
+
+  const id = pid.value;
+
+  const fotoFile = document.getElementById("foto").files[0];
+  let foto = null;
+
+  if(fotoFile){
+    foto = await toBase64(fotoFile);
+  }
+
+  const data = {
+    nombre: nombre.value,
+    correo: correo.value,
+    telefono: telefono.value,
+    departamento: departamento.value,
+    rol: rol.value,
+    foto: foto
+  };
+
+  if(id===""){
+    personal.push(data);
+  }else{
+    data.foto = foto || personal[id].foto;
+    personal[id] = data;
+  }
+
+  save(); render();
+  e.target.reset(); pid.value="";
+});
+
+function editar(i){
+  const p = personal[i];
+  pid.value = i;
+  nombre.value = p.nombre;
+  correo.value = p.correo;
+  telefono.value = p.telefono;
+  departamento.value = p.departamento;
+  rol.value = p.rol;
+}
+
+function eliminar(i){
+  if(confirm("¿Eliminar registro?")){
+    personal.splice(i,1);
+    save(); render();
+  }
+}
+
+// Filtros
+function buscar(){
+  const txt = q.value.toLowerCase();
+  const lista = personal.filter(p =>
+    p.nombre.toLowerCase().includes(txt) ||
+    p.correo.toLowerCase().includes(txt)
+  );
+  render(lista);
+}
+
+function filtrar(){
+  const dep = fDep.value;
+  const rolv = fRol.value;
+
+  const lista = personal.filter(p =>
+    (dep==="todas" || p.departamento===dep) &&
+    (rolv==="todas" || p.rol===rolv)
+  );
+  render(lista);
+}
+
+// Vista
+function setVista(v){
+  vista = v;
+  document.getElementById("cards").style.display = v==="cards"?"grid":"none";
+  document.getElementById("tabla").style.display = v==="tabla"?"table":"none";
+}
+
+// Orden
+function ordenar(key){
+  if(sortKey===key){ sortAsc = !sortAsc; }
+  else{ sortKey = key; sortAsc = true; }
+  render();
+}
+
+// CSV
+function exportarCSV(){
+  let csv = "Nombre,Correo,Telefono,Departamento,Rol\n";
+  personal.forEach(p=>{
+    csv += `${p.nombre},${p.correo},${p.telefono||""},${p.departamento},${p.rol}\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "directorio_personal.csv";
+  a.click();
+}
+
+// File -> base64
+function toBase64(file){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// Init
+setVista("cards");
+render();
+</script>
+
+</body>
+</html>

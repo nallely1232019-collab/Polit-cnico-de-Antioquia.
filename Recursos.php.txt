@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politécnico de Antioquia - Recursos Humanos Digitales</title>
+
+  <style>
+    :root{
+      --primary:#0a1f44;
+      --secondary:#1e90ff;
+      --bg:#f4f6f9;
+      --card:#fff;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --danger:#dc2626;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI;}
+    body{background:var(--bg);}
+    header{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:white; padding:15px; text-align:center;
+    }
+    .container{max-width:1100px;margin:auto;padding:20px;}
+    .grid{display:grid;grid-template-columns:1fr 2fr;gap:20px;}
+    .card{
+      background:var(--card);
+      padding:15px;border-radius:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,.1);
+    }
+    h2,h3{color:var(--primary);margin-bottom:10px;}
+    input,select{
+      width:100%;padding:8px;margin:5px 0;
+      border-radius:6px;border:1px solid #ccc;
+    }
+    button{
+      padding:8px;border:none;border-radius:6px;
+      background:var(--secondary);color:white;cursor:pointer;
+    }
+    table{
+      width:100%;border-collapse:collapse;margin-top:10px;
+    }
+    th,td{border:1px solid #ddd;padding:8px;text-align:center;}
+    th{background:var(--primary);color:white;}
+    .acciones button{margin:2px;}
+    .del{background:var(--danger);}
+    .ok{background:var(--ok);}
+    .warn{background:var(--warn);}
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Recursos Humanos Digitales</h1>
+  <p>Politécnico de Antioquia</p>
+</header>
+
+<div class="container">
+
+<div class="grid">
+
+<!-- FORM EMPLEADO -->
+<div class="card">
+  <h3>Registrar Empleado</h3>
+  <form id="formEmp">
+    <input type="hidden" id="empId">
+    <input id="nombre" placeholder="Nombre" required>
+    <input id="cargo" placeholder="Cargo" required>
+    <input id="salario" type="number" placeholder="Salario" required>
+    <button>Guardar</button>
+  </form>
+
+  <h3>Vacaciones</h3>
+  <form id="formVac">
+    <select id="empVac"></select>
+    <input type="date" id="fechaVac" required>
+    <button>Solicitar</button>
+  </form>
+</div>
+
+<!-- TABLAS -->
+<div class="card">
+  <h3>Empleados</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Cargo</th>
+        <th>Salario</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaEmp"></tbody>
+  </table>
+
+  <h3>Asistencia</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Empleado</th>
+        <th>Hora Entrada</th>
+        <th>Hora Salida</th>
+      </tr>
+    </thead>
+    <tbody id="tablaAsis"></tbody>
+  </table>
+
+  <h3>Vacaciones</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Empleado</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody id="tablaVac"></tbody>
+  </table>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+let empleados = JSON.parse(localStorage.getItem("emp")) || [];
+let asistencia = JSON.parse(localStorage.getItem("asis")) || [];
+let vacaciones = JSON.parse(localStorage.getItem("vac")) || [];
+
+// Guardar
+function save(){
+  localStorage.setItem("emp",JSON.stringify(empleados));
+  localStorage.setItem("asis",JSON.stringify(asistencia));
+  localStorage.setItem("vac",JSON.stringify(vacaciones));
+}
+
+// Render
+function render(){
+  let tEmp="", tAsis="", tVac="", opt="";
+
+  empleados.forEach((e,i)=>{
+    tEmp+=`
+      <tr>
+        <td>${e.nombre}</td>
+        <td>${e.cargo}</td>
+        <td>$${e.salario}</td>
+        <td class="acciones">
+          <button onclick="entrada(${i})" class="ok">Entrada</button>
+          <button onclick="salida(${i})" class="warn">Salida</button>
+          <button onclick="eliminar(${i})" class="del">X</button>
+        </td>
+      </tr>
+    `;
+    opt+=`<option value="${i}">${e.nombre}</option>`;
+  });
+
+  asistencia.forEach(a=>{
+    tAsis+=`
+      <tr>
+        <td>${a.nombre}</td>
+        <td>${a.entrada||""}</td>
+        <td>${a.salida||""}</td>
+      </tr>
+    `;
+  });
+
+  vacaciones.forEach(v=>{
+    tVac+=`
+      <tr>
+        <td>${v.nombre}</td>
+        <td>${v.fecha}</td>
+      </tr>
+    `;
+  });
+
+  tablaEmp.innerHTML=tEmp;
+  tablaAsis.innerHTML=tAsis;
+  tablaVac.innerHTML=tVac;
+  empVac.innerHTML=opt;
+}
+
+// CRUD empleado
+formEmp.onsubmit=e=>{
+  e.preventDefault();
+  empleados.push({
+    nombre:nombre.value,
+    cargo:cargo.value,
+    salario:salario.value
+  });
+  save(); render(); formEmp.reset();
+};
+
+function eliminar(i){
+  empleados.splice(i,1);
+  save(); render();
+}
+
+// Asistencia
+function entrada(i){
+  asistencia.push({
+    nombre:empleados[i].nombre,
+    entrada:new Date().toLocaleTimeString()
+  });
+  save(); render();
+}
+
+function salida(i){
+  let reg = asistencia.find(a=>a.nombre===empleados[i].nombre && !a.salida);
+  if(reg) reg.salida=new Date().toLocaleTimeString();
+  save(); render();
+}
+
+// Vacaciones
+formVac.onsubmit=e=>{
+  e.preventDefault();
+  vacaciones.push({
+    nombre:empleados[empVac.value].nombre,
+    fecha:fechaVac.value
+  });
+  save(); render(); formVac.reset();
+};
+
+// Init
+render();
+</script>
+
+</body>
+</html>
